@@ -3,7 +3,6 @@ var gif2asvg = {};
 
 var omggif = require('omggif');
 var ImageInfo = require('./image-info');
-var PNG = require('pngjs').PNG;
 
 if (global && !global.btoa) {
     global.btoa = function (str) {
@@ -65,28 +64,66 @@ gif2asvg.smilSvgAnimationFromImageDataGif = function (imageData) {
     return gif2asvg.smilSvgAnimationFromImageDataFramesGif(imageInfo);
 };
 
+gif2asvg._encodeImageDataToPngNodeJs = function (binaryArray, width, height) {
+    // ReSharper disable once InconsistentNaming
+    var PNG = require('pngjs').PNG;
+    
+    // ReSharper disable once InconsistentNaming
+    var png = new PNG();
+    png.width = width;
+    png.height = height;
+    
+    // ReSharper disable once UndeclaredGlobalVariableUsing
+    png.data = new Buffer(binaryArray);
+    var pngImageData = PNG.sync.write(png);
+    return pngImageData;
+};
+
+gif2asvg.encodeImageDataToPng = function (binaryArray, width, height) {
+    var g = global || window;
+    if (!g.document) {
+        return gif2asvg._encodeImageDataToPngNodeJs(binaryArray, width, height);
+    }
+    // canvas impelemtation
+    return;
+};
+
+gif2asvg.generateImageId = function (imageData, imageIndex) {
+    return 'F' + imageIndex;
+};
+
+gif2asvg.generateAnimationId = function (imageData, imageIndex) {
+    return 'A' + imageIndex;
+};
+
+
 gif2asvg.smilSvgAnimationFromImageDataFramesGif = function (imageData) {
     var svg = '';
-    var begin = 0;
+    var setTags = '';
     for (var i = 0; i < imageData.frames.length; i++) {
         var frame = imageData.frames[i];
 
-        var png = new PNG();
-        png.width = frame.width;
-        png.height = frame.height;
-        png.data = new Buffer(frame.data);
-        //png.pack();
-        var buffer = PNG.sync.write(png);
+        var pngImageData = gif2asvg.encodeImageDataToPng(frame.data, frame.width, frame.height);
+        var imageDataBase64 = gif2asvg.convertBinaryToBase64(pngImageData);
+        
+        var imageId = gif2asvg.generateImageId(imageData, i);
+        var imgTag = '<image id="' + imageId + '" height="100%" width="0" A:href="data:image/png;base64,' + imageDataBase64 + '"/>';
 
-        var imageDataBase64 = gif2asvg.convertBinaryToBase64(buffer);
-        var imgTag = '<image height="100%" width="0" A:href="data:image/png;base64,' + imageDataBase64 + '">';
-        var setTag = '<set attributeName="width" repeatCount="indefinite" fill="remove" to="100%" dur="' + frame.delay + 'ms" begin="' + begin + 'ms"/>';
-        imgTag += setTag;
-        imgTag += '</image>';
+        var setTagId = gif2asvg.generateAnimationId(imageData, i);
+        var begin = '';
+        if (i === 0) {
+            begin += gif2asvg.generateAnimationId(imageData, imageData.frames.length - 1) + '.end; 0s';
+        } else {
+            begin += gif2asvg.generateAnimationId(imageData, i - 1) + '.end;';
+        }
+
+        var setTag = '<set id="' + setTagId + '" A:href="#' + imageId + '" attributeName="width" to="100%" dur="' + frame.delay + 'ms" begin="' + begin + '"/>';
+        setTags += setTag;
         svg += imgTag;
-        begin += frame.delay;
     }
-    
+
+    svg += setTags;
+
     svg = gif2asvg.wrapInSvgHeader(svg, imageData.width, imageData.height);
     return svg;
 };
