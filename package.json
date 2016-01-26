@@ -1,0 +1,14 @@
+{
+  "name": "gif2asvg",
+  "version": "0.0.0",
+  "description": "gif2asvg",
+  "main": "app.js",
+  "author": {
+    "name": "sky",
+    "email": ""
+  },
+  "dependencies": {
+    "gulp": "^3.9.0",
+    "omggif": "^1.0.8"
+  }
+}
