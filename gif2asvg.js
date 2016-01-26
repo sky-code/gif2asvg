@@ -3,6 +3,7 @@ var gif2asvg = {};
 
 var omggif = require('omggif');
 var ImageInfo = require('./image-info');
+var PNG = require('pngjs').PNG;
 
 if (global && !global.btoa) {
     global.btoa = function (str) {
@@ -69,15 +70,17 @@ gif2asvg.smilSvgAnimationFromImageDataFramesGif = function (imageData) {
     var begin = 0;
     for (var i = 0; i < imageData.frames.length; i++) {
         var frame = imageData.frames[i];
-        
 
-        var gf = new omggif.GifWriter(frame.data, frame.width, frame.height);
-        gf.addFrame(0, 0, frame.width, frame.height);
-        var data = frame.data.slice(0, gf.end());
+        var png = new PNG();
+        png.width = frame.width;
+        png.height = frame.height;
+        png.data = new Buffer(frame.data);
+        //png.pack();
+        var buffer = PNG.sync.write(png);
 
-        var imageDataBase64 = gif2asvg.convertBinaryToBase64(data);
-        var imgTag = '<image height="100%" width="0" A:href="data:image/gif;base64,' + imageDataBase64 + '">';
-        var setTag = '<set attributeName="width" to="100%" dur="' + frame.delay + 'ms" begin="' + begin + 'ms"/>';
+        var imageDataBase64 = gif2asvg.convertBinaryToBase64(buffer);
+        var imgTag = '<image height="100%" width="0" A:href="data:image/png;base64,' + imageDataBase64 + '">';
+        var setTag = '<set attributeName="width" repeatCount="indefinite" fill="remove" to="100%" dur="' + frame.delay + 'ms" begin="' + begin + 'ms"/>';
         imgTag += setTag;
         imgTag += '</image>';
         svg += imgTag;
