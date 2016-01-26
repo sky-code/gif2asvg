@@ -43,6 +43,10 @@ ImageInfo.fromGifReader = function (gifReader) {
         frame.y = frameInfo.y;
         gifReader.decodeAndBlitFrameRGBA(i, frame.data);
         imageData.frames[i] = frame;
+
+        if (frame.delay) {
+            frame.delay = frame.delay * 10; // bugfix
+        }
     }
     
     imageData.loopCount = gifReader.loopCount();
