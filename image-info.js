@@ -1,20 +1,18 @@
 ﻿'use strict';
 
 var ImageInfo = {};
-ImageInfo.createImageData = function (width, height) {
-    var g = global || window;
-    
-    // ReSharper disable once InconsistentNaming
-    var U8A = Uint8ClampedArray || Uint8Array;
-    
-    if (g.document) {
-        var ctx = document.createElement('canvas').getContext('2d');
-        return ctx.createImageData(width, height);
-    } else {
+ImageInfo.isNode = typeof window === 'undefined';
+ImageInfo.createImageData = function(width, height) {
+    if (ImageInfo.isNode) {
+        // ReSharper disable once InconsistentNaming
+        var U8A = Uint8ClampedArray || Uint8Array;
         var imageData = { width: width, height: height };
         imageData.data = new U8A(width * height * 4);
         return imageData;
     }
+
+    var ctx = window.document.createElement('canvas').getContext('2d');
+    return ctx.createImageData(width, height);
 };
 
 ImageInfo.fromGifReader = function (gifReader) {
@@ -34,11 +32,9 @@ ImageInfo.fromGifReader = function (gifReader) {
         frame.delay = frameInfo.delay;
         frame.disposal = frameInfo.disposal;
         frame.has_local_palette = frameInfo.has_local_palette;
-        frame.height = frameInfo.height;
         frame.interlaced = frameInfo.interlaced;
         frame.palette_offset = frameInfo.palette_offset;
         frame.transparent_index = frameInfo.transparent_index;
-        frame.width = frameInfo.width;
         frame.x = frameInfo.x;
         frame.y = frameInfo.y;
         gifReader.decodeAndBlitFrameRGBA(i, frame.data);
@@ -57,4 +53,6 @@ ImageInfo.fromGifReader = function (gifReader) {
     return imageData;
 };
 
-module.exports = ImageInfo;
+if (ImageInfo.isNode) {
+    module.exports = ImageInfo;
+}

@@ -1,10 +1,20 @@
 ﻿'use strict';
 var gif2asvg = {};
 
-var omggif = require('omggif');
-var ImageInfo = require('./image-info');
+gif2asvg.isNode = typeof window === 'undefined';
 
-if (global && !global.btoa) {
+if (gif2asvg.isNode) {
+    var omggif = require('omggif');
+    var ImageInfo = require('./image-info');
+} else {
+    window.omggif = {
+        GifWriter: GifWriter,
+        GifReader: GifReader    
+    };
+}
+
+
+if (gif2asvg.isNode && typeof btoa === 'undefined') {
     global.btoa = function (str) {
         var buffer;
         
@@ -48,6 +58,10 @@ gif2asvg.convertBinaryToBase64 = function (binaryData) {
     return btoa(result);
 };
 
+gif2asvg.encodeSvgAsBase64 = function(svg) {
+    return 'data:image/svg+xml;base64,' + btoa(svg);
+}
+
 gif2asvg.wrapInSvgHeader = function (svgMarkup, svgWidth, svgHeight) {
     var svgOpen = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:A="http://www.w3.org/1999/xlink" width="' + svgWidth + '" height="' + svgHeight + '">';
     var svgClose = '</svg>';
@@ -64,28 +78,36 @@ gif2asvg.smilSvgAnimationFromImageDataGif = function (imageData) {
     return gif2asvg.smilSvgAnimationFromImageDataFramesGif(imageInfo);
 };
 
-gif2asvg._encodeImageDataToPngNodeJs = function (binaryArray, width, height) {
+gif2asvg._encodeImageDataToPngCanvas = function (imageData) {
+    var canvas = window.document.createElement('canvas');
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    var ctx = canvas.getContext('2d');
+    ctx.putImageData(imageData, 0, 0);
+    return canvas.toDataURL('image/png');
+};
+
+gif2asvg._encodeImageDataToPngNodeJs = function (imageData) {
     // ReSharper disable once InconsistentNaming
     var PNG = require('pngjs').PNG;
     
     // ReSharper disable once InconsistentNaming
     var png = new PNG();
-    png.width = width;
-    png.height = height;
+    png.width = imageData.width;
+    png.height = imageData.height;
     
     // ReSharper disable once UndeclaredGlobalVariableUsing
-    png.data = new Buffer(binaryArray);
+    png.data = new Buffer(imageData.data);
     var pngImageData = PNG.sync.write(png);
-    return pngImageData;
+    var pngDataUri = 'data:image/png;base64,' + gif2asvg.convertBinaryToBase64(pngImageData);
+    return pngDataUri;
 };
 
-gif2asvg.encodeImageDataToPng = function (binaryArray, width, height) {
-    var g = global || window;
-    if (!g.document) {
-        return gif2asvg._encodeImageDataToPngNodeJs(binaryArray, width, height);
+gif2asvg.encodeImageDataToPng = function (imageData) {
+    if (gif2asvg.isNode) {
+        return gif2asvg._encodeImageDataToPngNodeJs(imageData);
     }
-    // canvas impelemtation
-    return;
+    return gif2asvg._encodeImageDataToPngCanvas(imageData);
 };
 
 gif2asvg.generateImageId = function (imageData, imageIndex) {
@@ -102,13 +124,12 @@ gif2asvg.smilSvgAnimationFromImageDataFramesGif = function (imageData) {
     var setTags = '';
     for (var i = 0; i < imageData.frames.length; i++) {
         var frame = imageData.frames[i];
-
-        var pngImageData = gif2asvg.encodeImageDataToPng(frame.data, frame.width, frame.height);
-        var imageDataBase64 = gif2asvg.convertBinaryToBase64(pngImageData);
+        
+        var pngImageDataUri = gif2asvg.encodeImageDataToPng(frame);
         
         var imageId = gif2asvg.generateImageId(imageData, i);
-        var imgTag = '<image id="' + imageId + '" height="100%" width="0" A:href="data:image/png;base64,' + imageDataBase64 + '"/>';
-
+        var imgTag = '<image id="' + imageId + '" height="100%" width="0" A:href="' + pngImageDataUri + '"/>';
+        
         var setTagId = gif2asvg.generateAnimationId(imageData, i);
         var begin = '';
         if (i === 0) {
@@ -116,14 +137,14 @@ gif2asvg.smilSvgAnimationFromImageDataFramesGif = function (imageData) {
         } else {
             begin += gif2asvg.generateAnimationId(imageData, i - 1) + '.end;';
         }
-
+        
         var setTag = '<set id="' + setTagId + '" A:href="#' + imageId + '" attributeName="width" to="100%" dur="' + frame.delay + 'ms" begin="' + begin + '"/>';
         setTags += setTag;
         svg += imgTag;
     }
-
+    
     svg += setTags;
-
+    
     svg = gif2asvg.wrapInSvgHeader(svg, imageData.width, imageData.height);
     return svg;
 };
@@ -131,11 +152,13 @@ gif2asvg.smilSvgAnimationFromImageDataFramesGif = function (imageData) {
 
 function testRun() {
     var fs = require('fs');
-    var data = fs.readFileSync('./convert/overlay6.gif');
+    var file = './convert/overlay12.gif';
+    var data = fs.readFileSync(file);
     var svg = gif2asvg.smilSvgAnimationFromImageDataGif(data);
     
-    fs.writeFileSync('./result.svg', svg, 'utf8');
+    fs.writeFileSync(file + '.svg', svg, 'utf8');
+    //fs.writeFileSync(file+'.txt', svg, 'base64');
 }
 
-testRun();
+//testRun();
 

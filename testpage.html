@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>gif2asvg test page</title>
+    <style type="text/css">
+        .output {
+            border: 1px solid gray;
+            width: 500px;
+            height: 500px;
+            overflow: scroll;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <span>select an gif image</span>
+    <input id="inputGifSelect" type="file" accept="image/gif"/>
+</div>
+<table>
+    <tbody>
+    <tr>
+        <td>
+            <h2>raw image output</h2>
+            <div class="output">
+                <img id="imgContainer"/>
+            </div>
+        </td>
+        <td>
+            <h2>svg output</h2>
+            <div class="output">
+                <img id="svgContainer"/>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div>
+    <textarea id="svgRawOutput" cols="150" rows="20"></textarea>
+</div>
+<script src="./node_modules/omggif/omggif.js"></script>
+<script src="image-info.js"></script>
+<script src="gif2asvg.js"></script>
+<script type="text/javascript">
+    function convertImage(data) {
+        var imgContainer = document.getElementById('imgContainer');
+        var svgContainer = document.getElementById('svgContainer');
+        var svgRawOutput = document.getElementById('svgRawOutput');
+        imgContainer.src = data;
+
+        var svg = gif2asvg.smilSvgAnimationFromBase64Gif(data);
+        var svgBase64 = gif2asvg.encodeSvgAsBase64(svg);
+        svgContainer.src = svgBase64;
+        //svgContainer.src = 'data:image/svg+xml,' + svg;
+        svgContainer.innerHTML = svg;
+        svgRawOutput.value = svg;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var inputGifSelect = document.getElementById('inputGifSelect');
+        inputGifSelect.addEventListener('change', function (evt) {
+            var file = evt.target.files[0];
+            var fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                convertImage(e.target.result);
+            };
+            fileReader.readAsDataURL(file);
+
+
+        }, false);
+    });
+
+</script>
+</body>
+</html>
