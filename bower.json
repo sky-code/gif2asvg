@@ -1,0 +1,25 @@
+{
+  "name": "gif2asvg",
+  "description": "gif to animated svg converter",
+  "main": [ "dist/gif2asvg.js" ],
+  "authors": [
+    "sky",
+    "cqr"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/sky-code/gif2asvg",
+  "keywords": [
+    "gif",
+    "svg",
+    "converter",
+    "generator"
+  ],
+  "moduleType": [ ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
