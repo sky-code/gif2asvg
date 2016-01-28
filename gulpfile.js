@@ -4,6 +4,7 @@ var del = require("del");
 
 gulp.task('dist', function() {
     gulp.src([
+            './node_modules/omggif/omggif.js',
             './image-info.js',
             './gif2asvg.js'
         ]).pipe($.concat('gif2asvg.js'))
