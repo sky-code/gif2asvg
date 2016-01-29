@@ -1,6 +1,8 @@
 ﻿(function(global) {
     'use strict';
-    
+
+    var q = "'";
+
     var gif2asvg = {};
     gif2asvg.isNode = typeof window === 'undefined';
     
@@ -62,7 +64,7 @@
     }
 
     gif2asvg.wrapInSvgHeader = function(svgMarkup, svgWidth, svgHeight) {
-        var svgOpen = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:A="http://www.w3.org/1999/xlink" width="' + svgWidth + '" height="' + svgHeight + '">';
+        var svgOpen = '<svg xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
         var svgClose = '</svg>';
         return svgOpen + svgMarkup + svgClose;
     };
@@ -124,7 +126,7 @@
             var pngImageDataUri = gif2asvg.encodeImageDataToPng(frame);
 
             var imageId = gif2asvg.generateImageId(imageData, i);
-            var imgTag = '<image id="' + imageId + '" height="100%" width="0" A:href="' + pngImageDataUri + '"/>';
+            var imgTag = '<image id=' + q + imageId + q + ' height=' + q + '100%' + q + ' width=' + q + '0' + q + ' A:href=' + q + pngImageDataUri + q + '/>';
 
             var setTagId = gif2asvg.generateAnimationId(imageData, i);
             var begin = '';
@@ -134,7 +136,7 @@
                 begin += gif2asvg.generateAnimationId(imageData, i - 1) + '.end;';
             }
 
-            var setTag = '<set id="' + setTagId + '" A:href="#' + imageId + '" attributeName="width" to="100%" dur="' + frame.delay + 'ms" begin="' + begin + '"/>';
+            var setTag = '<set id=' + q + setTagId + q + ' A:href=' + q + '#' + imageId + q + ' attributeName=' + q + 'width' + q + ' to=' + q + '100%' + q + ' dur=' + q + frame.delay + 'ms' + q + ' begin=' + q + begin + q + '/>';
             setTags += setTag;
             svg += imgTag;
         }
