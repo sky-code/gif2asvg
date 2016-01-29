@@ -1,14 +1,14 @@
 ﻿(function(global) {
     'use strict';
 
-    var q = "'";
+    var q = '"';
 
     var gif2asvg = {};
     gif2asvg.isNode = typeof window === 'undefined';
     
     if (gif2asvg.isNode) {
         var omggif = require('omggif');
-        var ImageInfo = require('./image-info')
+        var ImageInfo = require('./image-info');
         module.exports = gif2asvg;
     } else {
         var omggif = { GifWriter: global.GifWriter, GifReader: global.GifReader };
