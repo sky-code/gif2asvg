@@ -39,18 +39,18 @@
 <div>
     <textarea id="svgRawOutput" cols="150" rows="20"></textarea>
 </div>
-<script src="./node_modules/omggif/omggif.js"></script>
-<script src="image-info.js"></script>
-<script src="gif2asvg.js"></script>
+<script src="node_modules/omggif/omggif.js"></script>
+<script src="dist/image-info.js"></script>
+<script src="dist/gif2asvg.js"></script>
 <script type="text/javascript">
     function convertImage(data) {
         var imgContainer = document.getElementById('imgContainer');
         var svgContainer = document.getElementById('svgContainer');
         var svgRawOutput = document.getElementById('svgRawOutput');
         imgContainer.src = data;
-
-        var svg = gif2asvg.smilSvgAnimationFromBase64Gif(data);
-        var svgBase64 = gif2asvg.encodeSvgAsBase64(svg);
+        var converter = new gif2asvg();
+        var svg = converter.smilSvgAnimationFromBase64Gif(data);
+        var svgBase64 = converter.encodeSvgAsBase64(svg);
         svgContainer.src = svgBase64;
         //svgContainer.src = 'data:image/svg+xml,' + svg;
         svgContainer.innerHTML = svg;

@@ -1,10 +1,13 @@
-﻿var gif2asvg = require('./gif2asvg');
+﻿var gif2asvg = require('./dist/gif2asvg');
 
 function testRun() {
     var fs = require('fs');
     var file = './convert/overlay12.gif';
     var data = fs.readFileSync(file);
-    var svg = gif2asvg.smilSvgAnimationFromImageDataGif(data);
+
+    var converter = new gif2asvg();
+
+    var svg = converter.smilSvgAnimationFromImageDataGif(data);
     
     fs.writeFileSync(file + '.svg', svg, 'utf8');
 
