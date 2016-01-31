@@ -64,7 +64,8 @@
     }
 
     gif2asvg.wrapInSvgHeader = function(svgMarkup, svgWidth, svgHeight) {
-        var svgOpen = '<svg xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
+        var svgOpen = '<svg id="ts0000000000000000" xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
+        // TODO move to override method 
         var svgClose = '</svg>';
         return svgOpen + svgMarkup + svgClose;
     };
