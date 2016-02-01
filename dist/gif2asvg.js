@@ -9,12 +9,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     global.isNode = typeof window === 'undefined';
 
+    var omggif;
+    var ImageInfo;
     if (global.isNode) {
-        var omggif = require('omggif');
-        var ImageInfo = require('./image-info');
+        omggif = require('omggif');
+        ImageInfo = require('./image-info');
     } else {
-        var omggif = { GifWriter: global.GifWriter, GifReader: global.GifReader };
-        var ImageInfo = global.ImageInfo;
+        omggif = { GifWriter: global.GifWriter, GifReader: global.GifReader };
+        ImageInfo = global.ImageInfo;
     }
 
     if (global.isNode && typeof btoa === 'undefined') {
@@ -31,23 +33,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         };
     }
 
-    var q = '"';
-
     var gif2asvg = function () {
         function gif2asvg() {
             _classCallCheck(this, gif2asvg);
 
             this.isNode = typeof window === 'undefined';
-            this.q = q;
+            this.q = '"';
         }
 
         _createClass(gif2asvg, [{
             key: 'convertDataURIToBinary',
-            value: function convertDataURIToBinary(dataURI) {
-                var BASE64_MARKER = ';base64,';
+            value: function convertDataURIToBinary(dataUri) {
+                var base64Marker = ';base64,';
 
-                var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-                var base64 = dataURI.substring(base64Index);
+                var base64Index = dataUri.indexOf(base64Marker) + base64Marker.length;
+                var base64 = dataUri.substring(base64Index);
                 var raw = window.atob(base64);
                 var rawLength = raw.length;
                 var array = new Uint8Array(new ArrayBuffer(rawLength));
@@ -80,6 +80,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'wrapInSvgHeader',
             value: function wrapInSvgHeader(svgMarkup, svgWidth, svgHeight) {
+                var q = this.q;
                 var svgOpen = '<svg xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
                 var svgClose = '</svg>';
                 return svgOpen + svgMarkup + svgClose;
@@ -141,6 +142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'smilSvgAnimationFromImageDataFramesGif',
             value: function smilSvgAnimationFromImageDataFramesGif(imageData) {
+                var q = this.q;
                 var svg = '';
                 var setTags = '';
                 for (var i = 0; i < imageData.frames.length; i++) {
@@ -173,6 +175,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return gif2asvg;
     }();
+
+    // ReSharper disable once JsUnreachableCode
 
     if (global.isNode) {
         module.exports = gif2asvg;

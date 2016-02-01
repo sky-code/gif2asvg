@@ -1,10 +1,11 @@
 ﻿(function(global) {
     'use strict';
 
+    var gif2asvg;
     if (global.isNode) {
-        var gif2asvg = require('./dist/gif2asvg');
+        gif2asvg = require('./dist/gif2asvg');
     } else {
-        var gif2asvg = global.gif2asvg;
+        gif2asvg = global.gif2asvg;
     }
 
     gif2asvg.prototype.wrapInSvgHeader = function(svgMarkup, svgWidth, svgHeight) {
