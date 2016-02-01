@@ -1,5 +1,7 @@
-﻿var gif2asvg = require('./dist/gif2asvg');
+﻿require('./global-is-node-flag');
+var gif2asvg = require('./dist/gif2asvg');
 require('./gif2asvg-overrides');
+var btoa = require('btoa');
 
 function testRun() {
     var fs = require('fs');

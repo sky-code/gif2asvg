@@ -1,19 +1,41 @@
+(function(global) {
+    'use strict';
+    global.__isNode = typeof window === 'undefined';
+
+})(typeof window === 'undefined' ? global : window);
+
+(function(global) {
+    'use strict';
+
+    var gif2asvg;
+    if (global.__isNode) {
+        gif2asvg = require('./dist/gif2asvg');
+    } else {
+        gif2asvg = global.gif2asvg;
+    }
+
+    gif2asvg.prototype.wrapInSvgHeader = function(svgMarkup, svgWidth, svgHeight) {
+        var q = this.q;
+        var svgOpen = '<svg id="ts0000000000000000" xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
+        var svgClose = '</svg>';
+        return svgOpen + svgMarkup + svgClose;
+    };
+
+})(typeof window === 'undefined' ? global : window);
 'use strict';
 
 (function (global) {
     'use strict';
 
     var ImageInfo = {};
-    ImageInfo.isNode = typeof window === 'undefined';
-
-    if (ImageInfo.isNode) {
+    if (global.__isNode) {
         module.exports = ImageInfo;
     } else {
         global.ImageInfo = ImageInfo;
     }
 
     ImageInfo.createImageData = function (width, height) {
-        if (ImageInfo.isNode) {
+        if (global.__isNode) {
             // ReSharper disable once InconsistentNaming
             var U8A = Uint8ClampedArray || Uint8Array;
             var imageData = { width: width, height: height };
@@ -74,30 +96,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function (global) {
     'use strict';
 
-    global.isNode = typeof window === 'undefined';
-
     var omggif;
     var ImageInfo;
-    if (global.isNode) {
+    if (global.__isNode) {
         omggif = require('omggif');
         ImageInfo = require('./image-info');
     } else {
         omggif = { GifWriter: global.GifWriter, GifReader: global.GifReader };
         ImageInfo = global.ImageInfo;
     }
-
-    if (global.isNode && typeof btoa === 'undefined') {
-        global.btoa = function (str) {
-            var buffer;
-
-            if (str instanceof Buffer) {
-                buffer = str;
-            } else {
-                buffer = new Buffer(str.toString(), 'binary');
-            }
-
-            return buffer.toString('base64');
-        };
+    var btoa = global.btoa;
+    if (global.__isNode && btoa === 'undefined') {
+        btoa = require('btoa');
     }
 
     var gif2asvg = function () {
@@ -105,7 +115,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             _classCallCheck(this, gif2asvg);
 
             this.isNode = typeof window === 'undefined';
-            this.q = q;
+            this.q = '"';
         }
 
         _createClass(gif2asvg, [{
@@ -191,7 +201,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'encodeImageDataToPng',
             value: function encodeImageDataToPng(imageData) {
-                if (global.isNode) {
+                if (global.__isNode) {
                     return this._encodeImageDataToPngNodeJs(imageData);
                 }
                 return this._encodeImageDataToPngCanvas(imageData);
@@ -245,7 +255,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     // ReSharper disable once JsUnreachableCode
 
-    if (global.isNode) {
+    if (global.__isNode) {
         module.exports = gif2asvg;
     } else {
         global.gif2asvg = gif2asvg;

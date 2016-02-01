@@ -7,30 +7,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function (global) {
     'use strict';
 
-    global.isNode = typeof window === 'undefined';
-
     var omggif;
     var ImageInfo;
-    if (global.isNode) {
+    var btoa = global.btoa;
+    if (global.__isNode) {
         omggif = require('omggif');
         ImageInfo = require('./image-info');
+        btoa = require('btoa');
     } else {
         omggif = { GifWriter: global.GifWriter, GifReader: global.GifReader };
         ImageInfo = global.ImageInfo;
-    }
-
-    if (global.isNode && typeof btoa === 'undefined') {
-        global.btoa = function (str) {
-            var buffer;
-
-            if (str instanceof Buffer) {
-                buffer = str;
-            } else {
-                buffer = new Buffer(str.toString(), 'binary');
-            }
-
-            return buffer.toString('base64');
-        };
     }
 
     var gif2asvg = function () {
@@ -124,7 +110,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'encodeImageDataToPng',
             value: function encodeImageDataToPng(imageData) {
-                if (global.isNode) {
+                if (global.__isNode) {
                     return this._encodeImageDataToPngNodeJs(imageData);
                 }
                 return this._encodeImageDataToPngCanvas(imageData);
@@ -178,7 +164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     // ReSharper disable once JsUnreachableCode
 
-    if (global.isNode) {
+    if (global.__isNode) {
         module.exports = gif2asvg;
     } else {
         global.gif2asvg = gif2asvg;

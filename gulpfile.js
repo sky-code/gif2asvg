@@ -6,7 +6,8 @@ gulp.task('dist', ['dist:build']);
 
 gulp.task('dist:build', ['dist:transpiling'], function(cb) {
     gulp.src([
-            //'./node_modules/omggif/omggif.js',
+            './global-is-node-flag.js',
+            './gif2asvg-overrides.js',
             './dist/image-info.js',
             './dist/gif2asvg.js'
         ])
@@ -22,7 +23,6 @@ gulp.task('dist:build', ['dist:transpiling'], function(cb) {
 
 gulp.task('dist:transpiling', function(cb) {
     gulp.src([
-            //'./node_modules/omggif/omggif.js',
             './image-info.js',
             './gif2asvg.js'
         ])

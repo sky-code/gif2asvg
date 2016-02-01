@@ -4,16 +4,14 @@
     'use strict';
 
     var ImageInfo = {};
-    ImageInfo.isNode = typeof window === 'undefined';
-
-    if (ImageInfo.isNode) {
+    if (global.__isNode) {
         module.exports = ImageInfo;
     } else {
         global.ImageInfo = ImageInfo;
     }
 
     ImageInfo.createImageData = function (width, height) {
-        if (ImageInfo.isNode) {
+        if (global.__isNode) {
             // ReSharper disable once InconsistentNaming
             var U8A = Uint8ClampedArray || Uint8Array;
             var imageData = { width: width, height: height };

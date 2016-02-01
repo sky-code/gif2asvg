@@ -2,7 +2,7 @@
     'use strict';
 
     var gif2asvg;
-    if (global.isNode) {
+    if (global.__isNode) {
         gif2asvg = require('./dist/gif2asvg');
     } else {
         gif2asvg = global.gif2asvg;
