@@ -38,6 +38,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             _classCallCheck(this, gif2asvg);
 
             this.isNode = typeof window === 'undefined';
+            this.q = q;
         }
 
         _createClass(gif2asvg, [{
@@ -79,8 +80,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'wrapInSvgHeader',
             value: function wrapInSvgHeader(svgMarkup, svgWidth, svgHeight) {
-                var svgOpen = '<svg id="ts0000000000000000" xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
-                // TODO move to override method
+                var svgOpen = '<svg xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
                 var svgClose = '</svg>';
                 return svgOpen + svgMarkup + svgClose;
             }

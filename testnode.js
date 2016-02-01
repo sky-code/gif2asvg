@@ -1,4 +1,5 @@
 ﻿var gif2asvg = require('./dist/gif2asvg');
+require('./gif2asvg-overrides');
 
 function testRun() {
     var fs = require('fs');

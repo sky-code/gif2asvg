@@ -146,8 +146,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'wrapInSvgHeader',
             value: function wrapInSvgHeader(svgMarkup, svgWidth, svgHeight) {
-                var svgOpen = '<svg id="ts0000000000000000" xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
-                // TODO move to override method
+                var svgOpen = '<svg xmlns=' + q + 'http://www.w3.org/2000/svg' + q + ' xmlns:A=' + q + 'http://www.w3.org/1999/xlink' + q + ' width=' + q + svgWidth + q + ' height=' + q + svgHeight + q + '>';
                 var svgClose = '</svg>';
                 return svgOpen + svgMarkup + svgClose;
             }
@@ -164,8 +163,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return this.smilSvgAnimationFromImageDataFramesGif(imageInfo);
             }
         }, {
-            key: 'encodeImageDataToPngCanvas',
-            value: function encodeImageDataToPngCanvas(imageData) {
+            key: '_encodeImageDataToPngCanvas',
+            value: function _encodeImageDataToPngCanvas(imageData) {
                 var canvas = window.document.createElement('canvas');
                 canvas.width = imageData.width;
                 canvas.height = imageData.height;
