@@ -16,7 +16,7 @@ gulp.task('dist:build', ['dist:transpiling'], function(cb) {
         .pipe(gulp.dest('./dist/'))
         .pipe($.rename({ suffix: '.min' }))
         .pipe($.uglify())
-        .pipe($.sourcemaps.write("."))
+        .pipe($.sourcemaps.write('.', { includeContent: false, sourceRoot: '../' }))
         .pipe(gulp.dest('./dist'));
     cb();
 });
@@ -28,7 +28,7 @@ gulp.task('dist:transpiling', function(cb) {
         ])
         .pipe($.sourcemaps.init())
         .pipe($.babel())
-        .pipe($.sourcemaps.write("."))
+        .pipe($.sourcemaps.write('.', { includeContent: false, sourceRoot: '../' }))
         .pipe(gulp.dest('./dist'));
     cb();
 });
