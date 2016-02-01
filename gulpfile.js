@@ -7,9 +7,9 @@ gulp.task('dist', ['dist:build']);
 gulp.task('dist:build', ['dist:transpiling'], function(cb) {
     gulp.src([
             './global-is-node-flag.js',
-            './gif2asvg-overrides.js',
             './dist/image-info.js',
-            './dist/gif2asvg.js'
+            './dist/gif2asvg.js',
+            './gif2asvg-overrides.js'
         ])
         .pipe($.sourcemaps.init())
         .pipe($.concat('gif2asvg.full.js'))
