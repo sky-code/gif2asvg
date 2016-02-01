@@ -98,16 +98,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var omggif;
     var ImageInfo;
+    var btoa = global.btoa;
     if (global.__isNode) {
         omggif = require('omggif');
         ImageInfo = require('./image-info');
+        btoa = require('btoa');
     } else {
         omggif = { GifWriter: global.GifWriter, GifReader: global.GifReader };
         ImageInfo = global.ImageInfo;
-    }
-    var btoa = global.btoa;
-    if (global.__isNode && btoa === 'undefined') {
-        btoa = require('btoa');
     }
 
     var gif2asvg = function () {
