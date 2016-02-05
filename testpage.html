@@ -20,7 +20,7 @@
 </div>
 <div>
     <span>Encode to base64</span>
-    <input id="encodeToBase64" type="checkbox" checked="checked"/>
+    <input id="inputEncodeToBase64" type="checkbox" checked="checked"/>
 </div>
 <table>
     <tbody>
@@ -28,20 +28,20 @@
         <td>
             <h2>raw image output</h2>
             <div class="output">
-                <img id="imgContainer"/>
+                <img id="inputRawImg"/>
             </div>
         </td>
         <td>
             <h2>svg output</h2>
             <div class="output">
-                <img id="svgContainer"/>
+                <img id="outputSvgImg"/>
             </div>
         </td>
     </tr>
     </tbody>
 </table>
 <div>
-    <textarea id="svgRawOutput" cols="150" rows="20"></textarea>
+    <textarea id="outputSvg" cols="150" rows="20"></textarea>
 </div>
 <script src="node_modules/omggif/omggif.js"></script>
 <script src="global-is-node-flag.js"></script>
@@ -49,32 +49,30 @@
 <script src="dist/gif2asvg.js"></script>
 <script src="gif2asvg-overrides.js"></script>
 <script type="text/javascript">
-
-
     document.addEventListener("DOMContentLoaded", function () {
-        var encodeToBase64Element = document.getElementById('encodeToBase64');
-        var encodeToBase64 = encodeToBase64Element.checked;
+        var inputEncodeToBase64Element = document.getElementById('inputEncodeToBase64');
+        var encodeToBase64 = inputEncodeToBase64Element.checked;
 
         function convertImage(data) {
-            var imgContainer = document.getElementById('imgContainer');
-            var svgContainer = document.getElementById('svgContainer');
-            var svgRawOutput = document.getElementById('svgRawOutput');
-            imgContainer.src = data;
+            var inputRawImg = document.getElementById('inputRawImg');
+            var outputSvgImg = document.getElementById('outputSvgImg');
+            var outputSvg = document.getElementById('outputSvg');
+            inputRawImg.src = data;
             var converter = new gif2asvg();
             var svg = converter.smilSvgAnimationFromBase64Gif(data);
             if (encodeToBase64) {
                 var svgBase64 = converter.encodeSvgAsBase64(svg);
-                svgContainer.src = svgBase64;
-                svgRawOutput.value = svgBase64;
+                outputSvgImg.src = svgBase64;
+                outputSvg.value = svgBase64;
 
             } else {
-                svgContainer.src = 'data:image/svg+xml,' + svg;
-                svgRawOutput.value = svg;
+                outputSvgImg.src = 'data:image/svg+xml,' + svg;
+                outputSvg.value = svg;
             }
         }
 
-        encodeToBase64Element.addEventListener('change', function(evt) {
-            encodeToBase64 = encodeToBase64Element.checked;
+        inputEncodeToBase64Element.addEventListener('change', function () {
+            encodeToBase64 = inputEncodeToBase64Element.checked;
         });
 
         var inputGifSelect = document.getElementById('inputGifSelect');
