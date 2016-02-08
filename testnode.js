@@ -5,11 +5,13 @@ var btoa = require('btoa');
 
 function testRun() {
     var fs = require('fs');
-    var file = './convert/overlay12.gif';
+    // 2, 7, 9, 13
+    var file = './convert/overlay11.gif';
     var data = fs.readFileSync(file);
 
     var converter = new gif2asvg();
 
+    //var svg = converter.cssSvgAnimationFromImageDataGif(data);
     var svg = converter.smilSvgAnimationFromImageDataGif(data);
     
     fs.writeFileSync(file + '.svg', svg, 'utf8');
