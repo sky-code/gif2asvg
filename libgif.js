@@ -799,6 +799,7 @@
                 playing: playing,
                 move_relative: stepFrame,
                 current_frame: function() { return i; },
+                frames: function() { return frames; },
                 length: function() { return frames.length },
                 move_to: function ( frame_idx ) {
                     i = frame_idx;
@@ -922,6 +923,7 @@
             get_canvas_scale : function() { return get_canvas_scale() },
             get_loading      : function() { return loading },
             get_auto_play    : function() { return options.auto_play },
+            get_frames       : function() { return player.frames() },
             get_length       : function() { return player.length() },
             get_current_frame: function() { return player.current_frame() },
             load_url: function(src,callback){
