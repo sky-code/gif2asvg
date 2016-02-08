@@ -59,15 +59,52 @@
             return svgOpen + svgMarkup + svgClose;
         }
 
-        smilSvgAnimationFromBase64Gif(base64ImageData) {
-            return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData));
+        smilSvgAnimationFromBase64Gif(base64ImageData, cb) {
+            return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
         }
 
-        smilSvgAnimationFromImageDataGif(imageData) {
-            var gr = new omggif.GifReader(imageData);
-            var imageInfo = ImageInfo.fromGifReader(gr);
-            return this.smilSvgAnimationFromImageDataFramesGif(imageInfo);
-}
+        smilSvgAnimationFromImageDataGif(imageData, cb) {
+            var self = this;
+            var fakeImgParent = document.createElement('div');
+            var fakeImg = document.createElement('img');
+            fakeImgParent.appendChild(fakeImg);
+            var superGif = SuperGif({
+                gif: fakeImg,
+                auto_play: false,
+                draw_while_loading: false,
+                show_progress_bar: false
+            });
+            superGif.load_raw(imageData, function () {
+                var canvas = superGif.get_canvas();
+                var frames = superGif.get_frames();
+                var webFrames = [];
+                webFrames.width = canvas.width;
+                webFrames.height = canvas.height;
+
+                for (var i = 0; i < frames.length; i++) {
+                    var frame = frames[i];
+                    superGif.move_to(i);
+                    var imageDataUrl = canvas.toDataURL('image/png');
+                    var delay = frame.delay;
+                    if (delay) {
+                        delay = delay * 10; // bugfix
+                    }
+                    webFrames.push({
+                        imageDataUrl: imageDataUrl,
+                        delay: delay
+                    });
+                }
+                var svg = self.smilSvgAnimationFromWebFrames(webFrames);
+                if (cb) {
+                    cb(svg);
+                }
+            });
+
+            return '';
+            //var gr = new omggif.GifReader(imageData);
+            //var imageInfo = ImageInfo.fromGifReader(gr);
+            //return this.smilSvgAnimationFromWebFrames(imageInfo);
+        }
 
         cssSvgAnimationFromImageDataGif(imageData) {
             var gr = new omggif.GifReader(imageData);
@@ -144,24 +181,23 @@
             return svg;
 }
 
-        smilSvgAnimationFromImageDataFramesGif(imageData) {
+        smilSvgAnimationFromWebFrames(webFrames) {
             var q = this.q;
             var svg = '';
             var setTags = '';
-            for (var i = 0; i < imageData.frames.length; i++) {
-                var frame = imageData.frames[i];
+            for (var i = 0; i < webFrames.length; i++) {
+                var frame = webFrames[i];
 
-                var pngImageDataUri = this.encodeImageDataToPng(frame);
+                var imageDataUrl = frame.imageDataUrl;
+                var imageId = this.generateImageId(frame, i);
+                var imgTag = `<image id=${q}${imageId}${q} height=${q}100%${q} width=${q}0${q} A:href=${q}${imageDataUrl}${q}/>`;
 
-                var imageId = this.generateImageId(imageData, i);
-                var imgTag = `<image id=${q}${imageId}${q} height=${q}100%${q} width=${q}0${q} A:href=${q}${pngImageDataUri}${q}/>`;
-
-                var setTagId = this.generateAnimationId(imageData, i);
+                var setTagId = this.generateAnimationId(frame, i);
                 var begin = '';
                 if (i === 0) {
-                    begin += `${this.generateAnimationId(imageData, imageData.frames.length - 1)}.end; 0s`;
+                    begin += `${this.generateAnimationId(frame, webFrames.length - 1)}.end; 0s`;
                 } else {
-                    begin += `${this.generateAnimationId(imageData, i - 1)}.end;`;
+                    begin += `${this.generateAnimationId(frame, i - 1)}.end;`;
                 }
 
                 var setTag = `<set id=${q}${setTagId}${q} A:href=${q}#${imageId}${q} attributeName=${q}width${q} to=${q}100%${q} dur=${q}${frame.delay}ms${q} begin=${q}${begin}${q}/>`;
@@ -171,7 +207,7 @@
 
             svg += setTags;
 
-            svg = this.wrapInSvgHeader(svg, imageData.width, imageData.height);
+            svg = this.wrapInSvgHeader(svg, webFrames.width, webFrames.height);
             return svg;
         }
     }

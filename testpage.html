@@ -43,6 +43,7 @@
 <div>
     <textarea id="outputSvg" cols="150" rows="20"></textarea>
 </div>
+<script src="libgif.js"></script>
 <script src="node_modules/omggif/omggif.js"></script>
 <script src="global-is-node-flag.js"></script>
 <script src="dist/image-info.js"></script>
@@ -57,18 +58,21 @@
             var inputRawImg = document.getElementById('inputRawImg');
             var outputSvgImg = document.getElementById('outputSvgImg');
             var outputSvg = document.getElementById('outputSvg');
-            inputRawImg.src = data;
-            var converter = new gif2asvg();
-            var svg = converter.smilSvgAnimationFromBase64Gif(data);
-            if (encodeToBase64) {
-                var svgBase64 = converter.encodeSvgAsBase64(svg);
-                outputSvgImg.src = svgBase64;
-                outputSvg.value = svgBase64;
 
-            } else {
-                outputSvgImg.src = 'data:image/svg+xml,' + svg;
-                outputSvg.value = svg;
-            }
+            var converter = new gif2asvg();
+            converter.smilSvgAnimationFromBase64Gif(data, function(svg) {
+                inputRawImg.src = data;
+                if (encodeToBase64) {
+                    var svgBase64 = converter.encodeSvgAsBase64(svg);
+                    outputSvgImg.src = svgBase64;
+                    outputSvg.value = svgBase64;
+
+                } else {
+                    outputSvgImg.src = 'data:image/svg+xml,' + svg;
+                    outputSvg.value = svg;
+                }
+
+            });
         }
 
         inputEncodeToBase64Element.addEventListener('change', function () {
