@@ -1,16 +1,11 @@
 ﻿(function (global) {
     'use strict';
 
-    var omggif;
-    var ImageInfo;
+    var SuperGif = global.SuperGif;
     var btoa = global.btoa;
     if (global.__isNode) {
-        omggif = require('omggif');
-        ImageInfo = require('./image-info');
+        SuperGif = require('../libgif');
         btoa = require('btoa');
-    } else {
-        omggif = { GifWriter: global.GifWriter, GifReader: global.GifReader };
-        ImageInfo = global.ImageInfo;
     }
 
     class gif2asvg {

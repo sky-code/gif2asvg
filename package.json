@@ -8,8 +8,6 @@
     "email": ""
   },
   "dependencies": {
-    "omggif": "^1.0.8",
-    "pngjs": "^2.2.0",
     "btoa": "1.1.2"
   },
   "devDependencies": {

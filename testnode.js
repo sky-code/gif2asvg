@@ -3,6 +3,13 @@ var gif2asvg = require('./dist/gif2asvg');
 require('./gif2asvg-overrides');
 var btoa = require('btoa');
 
+var jsdom = require("jsdom").jsdom;
+var doc = jsdom("<html><body></body></html>");
+global.document = doc;
+
+var Canvas = require('canvas');
+var Image = Canvas.Image;
+
 function testRun() {
     var fs = require('fs');
     // 2, 7, 9, 13
