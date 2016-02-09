@@ -1066,14 +1066,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return svgOpen + svgMarkup + svgClose;
             }
         }, {
-            key: 'smilSvgAnimationFromBase64Gif',
-            value: function smilSvgAnimationFromBase64Gif(base64ImageData, cb) {
-                return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
-            }
-        }, {
-            key: 'smilSvgAnimationFromImageDataGif',
-            value: function smilSvgAnimationFromImageDataGif(imageData, cb) {
-                var self = this;
+            key: '_getWebFrames',
+            value: function _getWebFrames(imageData, cb) {
                 var fakeImgParent = document.createElement('div');
                 var fakeImg = document.createElement('img');
                 fakeImgParent.appendChild(fakeImg);
@@ -1089,6 +1083,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     var webFrames = [];
                     webFrames.width = canvas.width;
                     webFrames.height = canvas.height;
+                    webFrames.duration = 0;
 
                     for (var i = 0; i < frames.length; i++) {
                         var frame = frames[i];
@@ -1098,17 +1093,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         if (delay) {
                             delay = delay * 10; // bugfix
                         }
+                        if (i > 0) {
+                            webFrames.duration += delay;
+                        }
                         webFrames.push({
                             imageDataUrl: imageDataUrl,
                             delay: delay
                         });
                     }
+                    if (cb) {
+                        cb(webFrames);
+                    }
+                });
+            }
+        }, {
+            key: 'smilSvgAnimationFromBase64Gif',
+            value: function smilSvgAnimationFromBase64Gif(base64ImageData, cb) {
+                return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
+            }
+        }, {
+            key: 'smilSvgAnimationFromImageDataGif',
+            value: function smilSvgAnimationFromImageDataGif(imageData, cb) {
+                var self = this;
+                this._getWebFrames(imageData, function (webFrames) {
                     var svg = self.smilSvgAnimationFromWebFrames(webFrames);
                     if (cb) {
                         cb(svg);
                     }
                 });
-
                 return '';
                 //var gr = new omggif.GifReader(imageData);
                 //var imageInfo = ImageInfo.fromGifReader(gr);
@@ -1120,30 +1132,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var gr = new omggif.GifReader(imageData);
                 var imageInfo = ImageInfo.fromGifReader(gr);
                 return this.cssSvgAnimationFromImageDataFramesGif(imageInfo);
-            }
-        }, {
-            key: '_encodeImageDataToPngCanvas',
-            value: function _encodeImageDataToPngCanvas(imageData) {
-                var canvas = window.document.createElement('canvas');
-                canvas.width = imageData.width;
-                canvas.height = imageData.height;
-                var ctx = canvas.getContext('2d');
-                ctx.putImageData(imageData, 0, 0);
-                return canvas.toDataURL('image/png');
-            }
-        }, {
-            key: '_encodeImageDataToPngNodeJs',
-            value: function _encodeImageDataToPngNodeJs(imageData) {
-                var PNG = require('pngjs').PNG;
-
-                var png = new PNG();
-                png.width = imageData.width;
-                png.height = imageData.height;
-
-                png.data = new Buffer(imageData.data);
-                var pngImageData = PNG.sync.write(png);
-                var pngDataUri = 'data:image/png;base64,' + this.convertBinaryToBase64(pngImageData);
-                return pngDataUri;
             }
         }, {
             key: 'encodeImageDataToPng',
@@ -1165,35 +1153,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }, {
             key: 'cssSvgAnimationFromImageDataFramesGif',
-            value: function cssSvgAnimationFromImageDataFramesGif(imageData) {
+            value: function cssSvgAnimationFromImageDataFramesGif(webFrames) {
                 var q = this.q;
                 var svg = '';
                 var svgStyle = '@keyframes _smil14{0%{visibility:hidden}}';
                 var setTags = '';
-                for (var i = 0; i < imageData.frames.length; i++) {
-                    var frame = imageData.frames[i];
+                for (var i = 0; i < webFrames.length; i++) {
+                    var frame = webFrames[i];
 
-                    var pngImageDataUri = this.encodeImageDataToPng(frame);
+                    var imageDataUrl = frame.imageDataUrl;
+                    var imageId = this.generateImageId(frame, i);
+                    var imgTag = '<image id=' + q + imageId + q + ' height=' + q + '100%' + q + ' width=' + q + '0' + q + ' A:href=' + q + imageDataUrl + q + '/>';
 
-                    var imageId = this.generateImageId(imageData, i);
-                    var imgTag = '<image id=$ { q } $ { imageId } $ { q } height = $ { q } 100 % $ { q } width = $ { q } 0$ { q } A: href = $ { q } $ { pngImageDataUri } $ { q }/>';
-
-                    var setTagId = this.generateAnimationId(imageData, i);
+                    var setTagId = this.generateAnimationId(frame, i);
                     var begin = '';
                     if (i === 0) {
-                        begin += ' $ { this.generateAnimationId(imageData, imageData.frames.length - 1) }.end; 0s';
+                        begin += this.generateAnimationId(frame, webFrames.length - 1) + '.end; 0s';
                     } else {
-                        begin += ' $ { this.generateAnimationId(imageData, i - 1) }.end;';
+                        begin += this.generateAnimationId(frame, i - 1) + '.end;';
                     }
 
-                    var setTag = '<set id=$ { q } $ { setTagId } $ { q } A: href = $ { q }# $ { imageId } $ { q } attributeName = $ { q } width$ { q } to = $ { q } 100 % $ { q } dur = $ { q } $ { frame.delay } ms$ { q } begin = $ { q } $ { begin } $ { q }/>';
+                    var setTag = '<set id=' + q + setTagId + q + ' A:href=' + q + '#' + imageId + q + ' attributeName=' + q + 'width' + q + ' to=' + q + '100%' + q + ' dur=' + q + frame.delay + 'ms' + q + ' begin=' + q + begin + q + '/>';
                     setTags += setTag;
                     svg += imgTag;
                 }
 
                 svg += setTags;
 
-                svg = this.wrapInSvgHeader(svg, imageData.width, imageData.height);
+                svg = this.wrapInSvgHeader(svg, webFrames.width, webFrames.height);
                 return svg;
             }
         }, {

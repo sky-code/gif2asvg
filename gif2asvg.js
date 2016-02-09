@@ -54,12 +54,7 @@
             return svgOpen + svgMarkup + svgClose;
         }
 
-        smilSvgAnimationFromBase64Gif(base64ImageData, cb) {
-            return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
-        }
-
-        smilSvgAnimationFromImageDataGif(imageData, cb) {
-            var self = this;
+        _getWebFrames(imageData, cb) {
             var fakeImgParent = document.createElement('div');
             var fakeImg = document.createElement('img');
             fakeImgParent.appendChild(fakeImg);
@@ -69,12 +64,13 @@
                 draw_while_loading: false,
                 show_progress_bar: false
             });
-            superGif.load_raw(imageData, function () {
+            superGif.load_raw(imageData, function() {
                 var canvas = superGif.get_canvas();
                 var frames = superGif.get_frames();
                 var webFrames = [];
                 webFrames.width = canvas.width;
                 webFrames.height = canvas.height;
+                webFrames.duration = 0;
 
                 for (var i = 0; i < frames.length; i++) {
                     var frame = frames[i];
@@ -84,17 +80,30 @@
                     if (delay) {
                         delay = delay * 10; // bugfix
                     }
+                    webFrames.duration += delay;
                     webFrames.push({
                         imageDataUrl: imageDataUrl,
                         delay: delay
                     });
                 }
+                if (cb) {
+                    cb(webFrames);
+                }
+            });
+        }
+
+        smilSvgAnimationFromBase64Gif(base64ImageData, cb) {
+            return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
+        }
+
+        smilSvgAnimationFromImageDataGif(imageData, cb) {
+            var self = this;
+            this._getWebFrames(imageData, function(webFrames) {
                 var svg = self.smilSvgAnimationFromWebFrames(webFrames);
                 if (cb) {
                     cb(svg);
                 }
             });
-
             return '';
             //var gr = new omggif.GifReader(imageData);
             //var imageInfo = ImageInfo.fromGifReader(gr);
@@ -105,7 +114,7 @@
             var gr = new omggif.GifReader(imageData);
             var imageInfo = ImageInfo.fromGifReader(gr);
             return this.cssSvgAnimationFromImageDataFramesGif(imageInfo);
-}
+        }
 
         encodeImageDataToPng(imageData) {
             if (global.__isNode) {
