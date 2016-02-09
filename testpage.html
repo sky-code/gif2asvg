@@ -20,7 +20,7 @@
 </div>
 <div>
     <span>Encode to base64</span>
-    <input id="inputEncodeToBase64" type="checkbox" checked="checked"/>
+    <input id="inputEncodeToBase64" type="checkbox"/>
 </div>
 <table>
     <tbody>
@@ -59,7 +59,7 @@
             var outputSvg = document.getElementById('outputSvg');
 
             var converter = new gif2asvg();
-            converter.smilSvgAnimationFromBase64Gif(data, function(svg) {
+            converter.cssSvgAnimationFromBase64Gif(data, function(svg) {
                 inputRawImg.src = data;
                 if (encodeToBase64) {
                     var svgBase64 = converter.encodeSvgAsBase64(svg);

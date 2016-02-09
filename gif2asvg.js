@@ -110,10 +110,19 @@
             //return this.smilSvgAnimationFromWebFrames(imageInfo);
         }
 
-        cssSvgAnimationFromImageDataGif(imageData) {
-            var gr = new omggif.GifReader(imageData);
-            var imageInfo = ImageInfo.fromGifReader(gr);
-            return this.cssSvgAnimationFromImageDataFramesGif(imageInfo);
+        cssSvgAnimationFromBase64Gif(base64ImageData, cb) {
+            return this.cssSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
+        }
+
+        cssSvgAnimationFromImageDataGif(imageData, cb) {
+            var self = this;
+            this._getWebFrames(imageData, function (webFrames) {
+                var svg = self.cssSvgAnimationFromWebFrames(webFrames);
+                if (cb) {
+                    cb(svg);
+                }
+            });
+            return '';
         }
 
         encodeImageDataToPng(imageData) {
@@ -129,34 +138,58 @@
 
         generateAnimationId(imageData, imageIndex) {
             return `A${imageIndex}`;
-}
+        }
 
-        cssSvgAnimationFromImageDataFramesGif(webFrames) {
+        _normalizeKeyFramePercentage(percentage) {
+            return percentage;
+            return percentage.toFixed(4);
+        }
+
+        cssSvgAnimationFromWebFrames(webFrames) {
             var q = this.q;
+            var keyFrame = 0;
             var svg = '';
-            var svgStyle = '@keyframes _smil14{0%{visibility:hidden}}';
-            var setTags = '';
+            var style = '<style type="text/css"><![CDATA[';
+            var animationDuration = webFrames.duration;
+            var prevAnimationsDuration = 0;
             for (var i = 0; i < webFrames.length; i++) {
                 var frame = webFrames[i];
 
                 var imageDataUrl = frame.imageDataUrl;
-                var imageId = this.generateImageId(frame, i);
-                var imgTag = `<image id=${q}${imageId}${q} height=${q}100%${q} width=${q}0${q} A:href=${q}${imageDataUrl}${q}/>`;
+                var animationId = this.generateAnimationId(frame, i);
+                var imgId = this.generateImageId(frame, i);
+                var imgTag = `<image id=${q}${imgId}${q} transform=${q}matrix(1,0,0,1,0,0)${q} height=${q}100%${q} width=${q}100%${q} A:href=${q}${imageDataUrl}${q}/>`;
 
-                var setTagId = this.generateAnimationId(frame, i);
-                var begin = '';
+                var keyframeStyle = `\n@keyframes ${animationId} { `;
                 if (i === 0) {
-                    begin += `${this.generateAnimationId(frame, webFrames.length - 1)}.end; 0s`;
+                    keyframeStyle += '0% {visibility: visible;}';
                 } else {
-                    begin += `${this.generateAnimationId(frame, i - 1)}.end;`;
+                    keyframeStyle += '0% {visibility: hidden;}';
+                    var beginPercent = (prevAnimationsDuration / animationDuration) * 100;
+                    beginPercent = this._normalizeKeyFramePercentage(beginPercent);
+                    keyframeStyle += `${beginPercent}% {visibility: visible;}`;
                 }
+                prevAnimationsDuration += frame.delay;
 
-                var setTag = `<set id=${q}${setTagId}${q} A:href=${q}#${imageId}${q} attributeName=${q}width${q} to=${q}100%${q} dur=${q}${frame.delay}ms${q} begin=${q}${begin}${q}/>`;
-                setTags += setTag;
+                var endPercent = (prevAnimationsDuration / animationDuration) * 100;
+                endPercent = this._normalizeKeyFramePercentage(endPercent);
+                keyframeStyle += `${endPercent}% {visibility: hidden;}`;
+
+                keyframeStyle += ' }';
+                style += keyframeStyle;
+
+                var imgVisibility = 'hidden';
+                if (i === keyFrame) {
+                    imgVisibility = 'visible';
+                }
+                var imgStyle = `\n${imgId} {visibility: ${imgVisibility}; animation-name: ${animationId};animation-duration: ${animationDuration}ms;animation-iteration-count: infinite;}`;
+                style += imgStyle;
+
                 svg += imgTag;
-            }
 
-            svg += setTags;
+            }
+            style += '\n]]></style>';
+            svg = style + svg;
 
             svg = this.wrapInSvgHeader(svg, webFrames.width, webFrames.height);
             return svg;
