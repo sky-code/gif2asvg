@@ -144,35 +144,34 @@
             return `A${imageIndex}`;
 }
 
-        cssSvgAnimationFromImageDataFramesGif(imageData) {
+        cssSvgAnimationFromImageDataFramesGif(webFrames) {
             var q = this.q;
             var svg = '';
             var svgStyle = '@keyframes _smil14{0%{visibility:hidden}}';
             var setTags = '';
-            for (var i = 0; i < imageData.frames.length; i++) {
-                var frame = imageData.frames[i];
+            for (var i = 0; i < webFrames.length; i++) {
+                var frame = webFrames[i];
 
-                var pngImageDataUri = this.encodeImageDataToPng(frame);
+                var imageDataUrl = frame.imageDataUrl;
+                var imageId = this.generateImageId(frame, i);
+                var imgTag = `<image id=${q}${imageId}${q} height=${q}100%${q} width=${q}0${q} A:href=${q}${imageDataUrl}${q}/>`;
 
-                var imageId = this.generateImageId(imageData, i);
-                var imgTag = `<image id=$ { q } $ { imageId } $ { q } height = $ { q } 100 % $ { q } width = $ { q } 0$ { q } A: href = $ { q } $ { pngImageDataUri } $ { q }/>`;
-
-                var setTagId = this.generateAnimationId(imageData, i);
+                var setTagId = this.generateAnimationId(frame, i);
                 var begin = '';
                 if (i === 0) {
-                    begin += ` $ { this.generateAnimationId(imageData, imageData.frames.length - 1) }.end; 0s`;
+                    begin += `${this.generateAnimationId(frame, webFrames.length - 1)}.end; 0s`;
                 } else {
-                    begin += ` $ { this.generateAnimationId(imageData, i - 1) }.end;`;
+                    begin += `${this.generateAnimationId(frame, i - 1)}.end;`;
                 }
 
-                var setTag = `<set id=$ { q } $ { setTagId } $ { q } A: href = $ { q }# $ { imageId } $ { q } attributeName = $ { q } width$ { q } to = $ { q } 100 % $ { q } dur = $ { q } $ { frame.delay } ms$ { q } begin = $ { q } $ { begin } $ { q }/>`;
+                var setTag = `<set id=${q}${setTagId}${q} A:href=${q}#${imageId}${q} attributeName=${q}width${q} to=${q}100%${q} dur=${q}${frame.delay}ms${q} begin=${q}${begin}${q}/>`;
                 setTags += setTag;
                 svg += imgTag;
             }
 
             svg += setTags;
 
-            svg = this.wrapInSvgHeader(svg, imageData.width, imageData.height);
+            svg = this.wrapInSvgHeader(svg, webFrames.width, webFrames.height);
             return svg;
 }
 
