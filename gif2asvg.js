@@ -107,28 +107,6 @@
             return this.cssSvgAnimationFromImageDataFramesGif(imageInfo);
 }
 
-        _encodeImageDataToPngCanvas(imageData) {
-            var canvas = window.document.createElement('canvas');
-            canvas.width = imageData.width;
-            canvas.height = imageData.height;
-            var ctx = canvas.getContext('2d');
-            ctx.putImageData(imageData, 0, 0);
-            return canvas.toDataURL('image/png');
-        }
-
-        _encodeImageDataToPngNodeJs(imageData) {
-            var PNG = require('pngjs').PNG;
-
-            var png = new PNG();
-            png.width = imageData.width;
-            png.height = imageData.height;
-
-            png.data = new Buffer(imageData.data);
-            var pngImageData = PNG.sync.write(png);
-            var pngDataUri = `data:image/png;base64,${this.convertBinaryToBase64(pngImageData)}`;
-            return pngDataUri;
-        }
-
         encodeImageDataToPng(imageData) {
             if (global.__isNode) {
                 return this._encodeImageDataToPngNodeJs(imageData);
