@@ -1144,6 +1144,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'encodeImageDataToPng',
             value: function encodeImageDataToPng(imageData) {
+                //TODO remove
                 if (global.__isNode) {
                     return this._encodeImageDataToPngNodeJs(imageData);
                 }
@@ -1162,8 +1163,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: '_normalizeKeyFramePercentage',
             value: function _normalizeKeyFramePercentage(percentage) {
-                return percentage;
-                return percentage.toFixed(4);
+                if (percentage.toString() > 5) {
+                    return percentage.toPrecision(4);
+                }
+                return percentage.toPrecision(3);
             }
         }, {
             key: 'cssSvgAnimationFromWebFrames',
@@ -1180,37 +1183,49 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     var imageDataUrl = frame.imageDataUrl;
                     var animationId = this.generateAnimationId(frame, i);
                     var imgId = this.generateImageId(frame, i);
-                    var imgTag = '<image id=' + q + imgId + q + ' transform=' + q + 'matrix(1,0,0,1,0,0)' + q + ' height=' + q + '100%' + q + ' width=' + q + '100%' + q + ' A:href=' + q + imageDataUrl + q + '/>';
+                    var imgVisibility = 'hidden';
+                    if (i === keyFrame) {
+                        imgVisibility = 'visible';
+                    }
 
-                    var keyframeStyle = '\n@keyframes ' + animationId + ' { ';
+                    var imgTag = '<image id=' + q + imgId + q + ' height=' + q + webFrames.height + q + ' width=' + q + webFrames.width + q + ' style=' + q + 'visibility: ' + imgVisibility + ';animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;-webkit-animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;' + q + ' A:href=' + q + imageDataUrl + q + '/>';
+
+                    var keyframeStyle = '@keyframes ' + animationId + ' { ';
                     if (i === 0) {
                         keyframeStyle += '0% {visibility: visible;}';
                     } else {
                         keyframeStyle += '0% {visibility: hidden;}';
                         var beginPercent = prevAnimationsDuration / animationDuration * 100;
+                        var beginPercentPreventAnimation = beginPercent - 0.01;
+                        beginPercentPreventAnimation = this._normalizeKeyFramePercentage(beginPercentPreventAnimation);
                         beginPercent = this._normalizeKeyFramePercentage(beginPercent);
+                        keyframeStyle += beginPercentPreventAnimation + '% {visibility: hidden;}';
                         keyframeStyle += beginPercent + '% {visibility: visible;}';
                     }
                     prevAnimationsDuration += frame.delay;
 
-                    var endPercent = prevAnimationsDuration / animationDuration * 100;
-                    endPercent = this._normalizeKeyFramePercentage(endPercent);
-                    keyframeStyle += endPercent + '% {visibility: hidden;}';
+                    if (i !== webFrames.length - 1) {
+                        var endPercent = prevAnimationsDuration / animationDuration * 100;
+                        var endPercentPreventAnimation = endPercent - 0.01;
+
+                        endPercent = this._normalizeKeyFramePercentage(endPercent);
+                        endPercentPreventAnimation = this._normalizeKeyFramePercentage(endPercentPreventAnimation);
+                        keyframeStyle += endPercentPreventAnimation + '% {visibility: visible;}';
+
+                        keyframeStyle += endPercent + '% {visibility: hidden;}';
+                    }
+                    keyframeStyle += '100% {visibility: hidden;}';
 
                     keyframeStyle += ' }';
+                    style += '\n';
                     style += keyframeStyle;
-
-                    var imgVisibility = 'hidden';
-                    if (i === keyFrame) {
-                        imgVisibility = 'visible';
-                    }
-                    var imgStyle = '\n' + imgId + ' {visibility: ' + imgVisibility + '; animation-name: ' + animationId + ';animation-duration: ' + animationDuration + 'ms;animation-iteration-count: infinite;}';
-                    style += imgStyle;
+                    style += '\n';
+                    style += '@-webkit-keyframes' + keyframeStyle.slice(10);
 
                     svg += imgTag;
                 }
-                style += ']]></style>';
-                svg = style + svg;
+                style += '\n]]></style>';
+                //svg = style + svg;
 
                 svg = this.wrapInSvgHeader(svg, webFrames.width, webFrames.height);
                 return svg;
