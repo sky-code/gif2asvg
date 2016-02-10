@@ -121,9 +121,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     }
                 });
                 return '';
-                //var gr = new omggif.GifReader(imageData);
-                //var imageInfo = ImageInfo.fromGifReader(gr);
-                //return this.smilSvgAnimationFromWebFrames(imageInfo);
             }
         }, {
             key: 'cssSvgAnimationFromBase64Gif',
@@ -141,15 +138,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     }
                 });
                 return '';
-            }
-        }, {
-            key: 'encodeImageDataToPng',
-            value: function encodeImageDataToPng(imageData) {
-                //TODO remove
-                if (global.__isNode) {
-                    return this._encodeImageDataToPngNodeJs(imageData);
-                }
-                return this._encodeImageDataToPngCanvas(imageData);
             }
         }, {
             key: 'generateImageId',

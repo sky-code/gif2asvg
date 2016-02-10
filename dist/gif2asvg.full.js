@@ -1120,9 +1120,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     }
                 });
                 return '';
-                //var gr = new omggif.GifReader(imageData);
-                //var imageInfo = ImageInfo.fromGifReader(gr);
-                //return this.smilSvgAnimationFromWebFrames(imageInfo);
             }
         }, {
             key: 'cssSvgAnimationFromBase64Gif',
@@ -1142,15 +1139,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return '';
             }
         }, {
-            key: 'encodeImageDataToPng',
-            value: function encodeImageDataToPng(imageData) {
-                //TODO remove
-                if (global.__isNode) {
-                    return this._encodeImageDataToPngNodeJs(imageData);
-                }
-                return this._encodeImageDataToPngCanvas(imageData);
-            }
-        }, {
             key: 'generateImageId',
             value: function generateImageId(imageData, imageIndex) {
                 return 'F' + imageIndex;
@@ -1163,7 +1151,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: '_normalizeKeyFramePercentage',
             value: function _normalizeKeyFramePercentage(percentage) {
-                if (percentage.toString() > 5) {
+                if (percentage <= 0) {
+                    return '0';
+                }
+                if (percentage >= 100) {
+                    return '100';
+                }
+                if (percentage.toString().length > 5) {
                     return percentage.toPrecision(4);
                 }
                 return percentage.toPrecision(3);
@@ -1188,7 +1182,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         imgVisibility = 'visible';
                     }
 
-                    var imgTag = '<image id=' + q + imgId + q + ' height=' + q + webFrames.height + q + ' width=' + q + webFrames.width + q + ' style=' + q + 'visibility: ' + imgVisibility + ';animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;-webkit-animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;' + q + ' A:href=' + q + imageDataUrl + q + '/>';
+                    var imgTag = '<image id=' + q + imgId + q + ' width=' + q + webFrames.width + q + ' height=' + q + webFrames.height + q + ' style=' + q + 'visibility: ' + imgVisibility + ';animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;-webkit-animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;' + q + ' A:href=' + q + imageDataUrl + q + '/>';
 
                     var keyframeStyle = '@keyframes ' + animationId + ' { ';
                     if (i === 0) {
@@ -1204,7 +1198,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     }
                     prevAnimationsDuration += frame.delay;
 
-                    if (i !== webFrames.length - 1) {
+                    if (i === webFrames.length - 1) {
+                        keyframeStyle += '99.99% {visibility: visible;}';
+                    } else {
                         var endPercent = prevAnimationsDuration / animationDuration * 100;
                         var endPercentPreventAnimation = endPercent - 0.01;
 
@@ -1225,7 +1221,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     svg += imgTag;
                 }
                 style += '\n]]></style>';
-                //svg = style + svg;
+                svg = style + svg;
 
                 svg = this.wrapInSvgHeader(svg, webFrames.width, webFrames.height);
                 return svg;
