@@ -1067,7 +1067,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }, {
             key: '_getWebFrames',
-            value: function _getWebFrames(imageData, cb) {
+            value: function _getWebFrames(imageData) {
                 var fakeImgParent = document.createElement('div');
                 var fakeImg = document.createElement('img');
                 fakeImgParent.appendChild(fakeImg);
@@ -1077,66 +1077,67 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     draw_while_loading: false,
                     show_progress_bar: false
                 });
-                superGif.load_raw(imageData, function () {
-                    var canvas = superGif.get_canvas();
-                    var frames = superGif.get_frames();
-                    var webFrames = [];
-                    webFrames.width = canvas.width;
-                    webFrames.height = canvas.height;
-                    webFrames.duration = 0;
+                var p = new Promise(function (resolve) {
+                    superGif.load_raw(imageData, function () {
+                        var canvas = superGif.get_canvas();
+                        var frames = superGif.get_frames();
+                        var webFrames = [];
+                        webFrames.width = canvas.width;
+                        webFrames.height = canvas.height;
+                        webFrames.duration = 0;
 
-                    for (var i = 0; i < frames.length; i++) {
-                        var frame = frames[i];
-                        superGif.move_to(i);
-                        var imageDataUrl = canvas.toDataURL('image/png');
-                        var delay = frame.delay;
-                        if (delay) {
-                            delay = delay * 10; // bugfix
+                        for (var i = 0; i < frames.length; i++) {
+                            var frame = frames[i];
+                            superGif.move_to(i);
+                            var imageDataUrl = canvas.toDataURL('image/png');
+                            var delay = frame.delay;
+                            if (delay) {
+                                delay = delay * 10; // bugfix
+                            }
+                            webFrames.duration += delay;
+                            webFrames.push({
+                                imageDataUrl: imageDataUrl,
+                                delay: delay
+                            });
                         }
-                        webFrames.duration += delay;
-                        webFrames.push({
-                            imageDataUrl: imageDataUrl,
-                            delay: delay
-                        });
-                    }
-                    if (cb) {
-                        cb(webFrames);
-                    }
+                        resolve(webFrames);
+                    });
                 });
+                return p;
             }
         }, {
             key: 'smilSvgAnimationFromBase64Gif',
-            value: function smilSvgAnimationFromBase64Gif(base64ImageData, cb) {
-                return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
+            value: function smilSvgAnimationFromBase64Gif(base64ImageData) {
+                return this.smilSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData));
             }
         }, {
             key: 'smilSvgAnimationFromImageDataGif',
-            value: function smilSvgAnimationFromImageDataGif(imageData, cb) {
+            value: function smilSvgAnimationFromImageDataGif(imageData) {
                 var self = this;
-                this._getWebFrames(imageData, function (webFrames) {
-                    var svg = self.smilSvgAnimationFromWebFrames(webFrames);
-                    if (cb) {
-                        cb(svg);
-                    }
+                var p = new Promise(function (resolve) {
+                    this._getWebFrames(imageData).then(function (webFrames) {
+                        var svg = self.smilSvgAnimationFromWebFrames(webFrames);
+                        resolve(svg);
+                    });
                 });
-                return '';
+                return p;
             }
         }, {
             key: 'cssSvgAnimationFromBase64Gif',
-            value: function cssSvgAnimationFromBase64Gif(base64ImageData, cb) {
-                return this.cssSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData), cb);
+            value: function cssSvgAnimationFromBase64Gif(base64ImageData) {
+                return this.cssSvgAnimationFromImageDataGif(this.convertDataURIToBinary(base64ImageData));
             }
         }, {
             key: 'cssSvgAnimationFromImageDataGif',
-            value: function cssSvgAnimationFromImageDataGif(imageData, cb) {
+            value: function cssSvgAnimationFromImageDataGif(imageData) {
                 var self = this;
-                this._getWebFrames(imageData, function (webFrames) {
-                    var svg = self.cssSvgAnimationFromWebFrames(webFrames);
-                    if (cb) {
-                        cb(svg);
-                    }
+                var p = new Promise(function (resolve) {
+                    this._getWebFrames(imageData).then(function (webFrames) {
+                        var svg = self.cssSvgAnimationFromWebFrames(webFrames);
+                        resolve(svg);
+                    });
                 });
-                return '';
+                return p;
             }
         }, {
             key: 'generateImageId',
@@ -1151,13 +1152,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: '_normalizeKeyFramePercentage',
             value: function _normalizeKeyFramePercentage(percentage) {
-                if (percentage <= 0) {
-                    return '0';
-                }
-                if (percentage >= 100) {
-                    return '100';
-                }
-                if (percentage.toString().length > 5) {
+                if (percentage.toString() > 5) {
                     return percentage.toPrecision(4);
                 }
                 return percentage.toPrecision(3);
@@ -1182,7 +1177,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         imgVisibility = 'visible';
                     }
 
-                    var imgTag = '<image id=' + q + imgId + q + ' width=' + q + webFrames.width + q + ' height=' + q + webFrames.height + q + ' style=' + q + 'visibility: ' + imgVisibility + ';animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;-webkit-animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;' + q + ' A:href=' + q + imageDataUrl + q + '/>';
+                    var imgTag = '<image id=' + q + imgId + q + ' height=' + q + webFrames.height + q + ' width=' + q + webFrames.width + q + ' style=' + q + 'visibility: ' + imgVisibility + ';animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;-webkit-animation:' + animationId + ' ' + animationDuration + 'ms linear 0s infinite;' + q + ' A:href=' + q + imageDataUrl + q + '/>';
 
                     var keyframeStyle = '@keyframes ' + animationId + ' { ';
                     if (i === 0) {
@@ -1198,9 +1193,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     }
                     prevAnimationsDuration += frame.delay;
 
-                    if (i === webFrames.length - 1) {
-                        keyframeStyle += '99.99% {visibility: visible;}';
-                    } else {
+                    if (i !== webFrames.length - 1) {
                         var endPercent = prevAnimationsDuration / animationDuration * 100;
                         var endPercentPreventAnimation = endPercent - 0.01;
 

@@ -7,7 +7,6 @@
     <style type="text/css">
         .output {
             border: 1px solid gray;
-            width: 500px;
             height: 500px;
             overflow: scroll;
         }
@@ -46,7 +45,7 @@
             var outputSvg = document.getElementById('outputSvg');
 
             var converter = new gif2asvg();
-            converter.cssSvgAnimationFromBase64Gif(data, function(svg) {
+            converter.smilSvgAnimationFromBase64Gif(data).then(function(svg) {
                 inputRawImg.src = data;
                 if (encodeToBase64) {
                     var svgBase64 = converter.encodeSvgAsBase64(svg);
