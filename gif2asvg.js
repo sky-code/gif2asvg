@@ -105,9 +105,6 @@
                 }
             });
             return '';
-            //var gr = new omggif.GifReader(imageData);
-            //var imageInfo = ImageInfo.fromGifReader(gr);
-            //return this.smilSvgAnimationFromWebFrames(imageInfo);
         }
 
         cssSvgAnimationFromBase64Gif(base64ImageData, cb) {
@@ -123,14 +120,6 @@
                 }
             });
             return '';
-        }
-
-        encodeImageDataToPng(imageData) {
-            //TODO remove
-            if (global.__isNode) {
-                return this._encodeImageDataToPngNodeJs(imageData);
-            }
-            return this._encodeImageDataToPngCanvas(imageData);
         }
 
         generateImageId (imageData, imageIndex) {
