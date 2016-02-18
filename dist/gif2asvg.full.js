@@ -1115,7 +1115,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function smilSvgAnimationFromImageDataGif(imageData) {
                 var self = this;
                 var p = new Promise(function (resolve) {
-                    this._getWebFrames(imageData).then(function (webFrames) {
+                    self._getWebFrames(imageData).then(function (webFrames) {
                         var svg = self.smilSvgAnimationFromWebFrames(webFrames);
                         resolve(svg);
                     });
@@ -1132,7 +1132,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function cssSvgAnimationFromImageDataGif(imageData) {
                 var self = this;
                 var p = new Promise(function (resolve) {
-                    this._getWebFrames(imageData).then(function (webFrames) {
+                    self._getWebFrames(imageData).then(function (webFrames) {
                         var svg = self.cssSvgAnimationFromWebFrames(webFrames);
                         resolve(svg);
                     });
@@ -1230,7 +1230,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                     var imageDataUrl = frame.imageDataUrl;
                     var imageId = this.generateImageId(frame, i);
-                    var imgTag = '<image id=' + q + imageId + q + ' height=' + q + '100%' + q + ' width=' + q + '0' + q + ' A:href=' + q + imageDataUrl + q + '/>';
+                    var imageWidth = webFrames.width;
+                    var imageHeight = webFrames.height;
+                    var imgTag = '<image id=' + q + imageId + q + ' style=' + q + 'visibility:hidden' + q + ' height=' + q + imageHeight + q + ' width=' + q + imageHeight + '{q} A:href=' + q + imageDataUrl + q + '/>';
 
                     var setTagId = this.generateAnimationId(frame, i);
                     var begin = '';
@@ -1240,7 +1242,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         begin += this.generateAnimationId(frame, i - 1) + '.end;';
                     }
 
-                    var setTag = '<set id=' + q + setTagId + q + ' A:href=' + q + '#' + imageId + q + ' attributeName=' + q + 'width' + q + ' to=' + q + '100%' + q + ' dur=' + q + frame.delay + 'ms' + q + ' begin=' + q + begin + q + '/>';
+                    var setTag = '<set id=' + q + setTagId + q + ' A:href=' + q + '#' + imageId + q + ' to=' + q + 'visible' + q + ' dur=' + q + frame.delay + 'ms' + q + ' begin=' + q + begin + q + ' attributeName=' + q + 'visibility' + q + ' attributeType= ' + q + 'CSS' + q + '/>';
                     setTags += setTag;
                     svg += imgTag;
                 }
