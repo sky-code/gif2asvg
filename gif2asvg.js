@@ -212,7 +212,7 @@
                 var imageId = this.generateImageId(frame, i);
                 var imageWidth = webFrames.width;
                 var imageHeight = webFrames.height;
-                var imgTag = `<image id=${q}${imageId}${q} style=${q}visibility:hidden${q} height=${q}${imageHeight}${q} width=${q}${imageHeight}${q} A:href=${q}${imageDataUrl}${q}/>`;
+                var imgTag = `<image id=${q}${imageId}${q} style=${q}visibility:hidden${q} height=${q}${imageHeight}${q} width=${q}${imageWidth}${q} A:href=${q}${imageDataUrl}${q}/>`;
 
                 var setTagId = this.generateAnimationId(frame, i);
                 var begin = '';
